@@ -76,7 +76,7 @@ class Kucoin {
             err = obj
           }
 
-          this._timeAdjust = err && err.body && err.body.timestamp && err.body.timestamp - Date.now() || 0
+          this.adjustTimeFromError(err);
           deferred.reject(err)
         } else {
           deferred.resolve(obj)
@@ -88,6 +88,8 @@ class Kucoin {
           if (!err && !obj.success) {
             err = obj
           }
+
+          this.adjustTimeFromError(err);
           deferred.reject(err)
         } else {
           deferred.resolve(obj)
@@ -95,6 +97,16 @@ class Kucoin {
       })
     }
     return deferred.promise
+  }
+
+  /**
+   * Store time offset of expected time after an error happened
+   * to eliminate nonce errors for subsequent calls
+   * @access private
+   * @param {Object} err - the returned error object
+   */
+  adjustTimeFromError(err) {
+    this._timeAdjust = err && err.body && err.body.timestamp && err.body.timestamp - Date.now() || 0
   }
 
   /**
